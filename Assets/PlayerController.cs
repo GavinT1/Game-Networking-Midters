@@ -1,5 +1,5 @@
 using UnityEngine;
-using Unity.Netcode; // Make sure this is added at the top
+using Unity.Netcode; 
 
 public class PlayerController : NetworkBehaviour
 {
@@ -11,26 +11,15 @@ public class PlayerController : NetworkBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    public override void OnNetworkSpawn()
-    {
-        if (IsOwner)
-        {
-            if (IsServer)
-            {
-                gameObject.tag = "Player1";
-                Debug.Log("Successfully tagged this local player as: Player1");
-            }
-            else
-            {
-                gameObject.tag = "Player2";
-                Debug.Log("Successfully tagged this local player as: Player2");
-            }
-        }
-    }
-
     void FixedUpdate()
     {
         if (!IsOwner) return;
+
+        if (GameManager.Instance == null || !GameManager.Instance.IsMatchActive())
+        {
+            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            return;
+        }
 
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveZ = Input.GetAxisRaw("Vertical");

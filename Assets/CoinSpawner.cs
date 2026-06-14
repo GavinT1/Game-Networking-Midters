@@ -1,8 +1,10 @@
 using UnityEngine;
-using Unity.Netcode; // Essential for NetworkBehaviour
+using Unity.Netcode;
 
 public class CoinSpawner : NetworkBehaviour
 {
+    public static CoinSpawner Instance;
+
     [Header("Coin Setup")]
     public GameObject coinPrefab;    
     public int numberOfCoins = 20;   
@@ -14,18 +16,20 @@ public class CoinSpawner : NetworkBehaviour
     public float maxZ = 32f;
     public float spawnHeight = 0.5f; 
 
-    // Changed from Start() to OnNetworkSpawn()
-    public override void OnNetworkSpawn()
+    void Awake()
     {
-        // ONLY the Host runs this logic. Clients will automatically receive the spawned objects!
-        if (!IsServer) return; 
-
-        SpawnAllCoins();
+        Instance = this;
     }
 
-    void SpawnAllCoins()
+    public void SpawnAllCoins()
     {
-        if (coinPrefab == null) return;
+        if (!IsServer || coinPrefab == null) return;
+
+        if (coinPrefab.GetComponent<NetworkObject>() == null)
+        {
+            Debug.LogError("Your Coin Prefab is missing a NetworkObject component!");
+            return;
+        }
 
         for (int i = 0; i < numberOfCoins; i++)
         {
@@ -33,10 +37,8 @@ public class CoinSpawner : NetworkBehaviour
             float randomZ = Random.Range(minZ, maxZ);
             Vector3 spawnPosition = new Vector3(randomX, spawnHeight, randomZ);
 
-            // 1. Instantiate the coin locally on the host
             GameObject spawnedCoin = Instantiate(coinPrefab, spawnPosition, Quaternion.identity, transform);
             
-            // 2. CRITICAL: This tells Netcode to spawn it on Player 2's screen instantly!
             spawnedCoin.GetComponent<NetworkObject>().Spawn();
         }
     }

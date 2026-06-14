@@ -7,13 +7,12 @@ public class NetworkMenuUI : MonoBehaviour
 
     void OnGUI()
     {
-        // 1. Starts the layout area
         GUILayout.BeginArea(new Rect(20, 20, 250, 400));
 
         if (NetworkManager.Singleton == null)
         {
             GUILayout.Label("Waiting for NetworkManager...");
-            GUILayout.EndArea(); // Safely exit if it's missing
+            GUILayout.EndArea();
             return;
         }
 
@@ -24,13 +23,11 @@ public class NetworkMenuUI : MonoBehaviour
             if (GUILayout.Button("Host Locally (Player 1)"))
             {
                 NetworkManager.Singleton.StartHost();
-                GameManager.Instance.StartGameTimer();
             }
 
             if (GUILayout.Button("Join Locally (Player 2)"))
             {
                 NetworkManager.Singleton.StartClient();
-                GameManager.Instance.StartGameTimer();
             }
 
             GUILayout.Space(20);
@@ -40,13 +37,11 @@ public class NetworkMenuUI : MonoBehaviour
             if (GUILayout.Button("Create Room via Code"))
             {
                 NetworkManager.Singleton.StartHost(); 
-                GameManager.Instance.StartGameTimer();
             }
 
             if (GUILayout.Button("Join Room via Code"))
             {
                 NetworkManager.Singleton.StartClient();
-                GameManager.Instance.StartGameTimer();
             }
         }
         else
@@ -58,7 +53,6 @@ public class NetworkMenuUI : MonoBehaviour
             }
         }
 
-        // 2. MATCHING END TAG: Closes the layout area perfectly
         GUILayout.EndArea(); 
     }
 }
